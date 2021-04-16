@@ -44,11 +44,11 @@ class MyDataset():
     return img, class_idx
 
 class MyCNN(nn.Module):
-  def __init__(self, in_size=3, out_size=8, use_norm=False):
+  def __init__(self, use_norm=False):
     super().__init__()
     self.convolution = nn.Sequential(
       # 1
-      nn.Conv2d(in_channels=in_size, out_channels=64, kernel_size=3, padding=1, stride=1),
+      nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, padding=1, stride=1),
       nn.ReLU(),
       # 2
       nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=1, stride=1),
@@ -56,7 +56,7 @@ class MyCNN(nn.Module):
       nn.AdaptiveMaxPool2d(output_size=2)
     )
     self.classifier = nn.Linear(512,8)
-    
+
   def forward(self, x):
     b, _, _, _ = x.shape
     feature_extracted = self.convolution(x)
@@ -144,7 +144,7 @@ def train(net, loaders, optimizer, criterion, epochs=100, dev=torch.device('cpu'
         
 if __name__=='__main__':
     
-    dest_dir='D:\Learning Data\Exams\mechanical\modified\data'
+    dest_dir='C:\\Users\\emanu\\Desktop\\project_data\\data'
     os.listdir(dest_dir)
     num_classes = len(os.listdir(dest_dir))
     print(f"Number of classes: {num_classes}")
@@ -160,7 +160,7 @@ if __name__=='__main__':
     
     data = MyDataset(dest_dir,transforms=transforms)
     
-    # example, label = data[130]
+    # example, label = data[1001]
     # plt.imshow(  example.permute(1, 2, 0)  )
     
     n = len(data)
@@ -175,10 +175,10 @@ if __name__=='__main__':
     val_idx = idx[num_train : num_train+num_test]
     test_idx = idx[num_train+num_test :]
     
-    # print(f"{n} samples")
-    # print(f"{len(train_idx)} samples used as train set")
-    # print(f"{len(val_idx)} samples used as validation set")
-    # print(f"{len(test_idx)} samples used as test set")
+    print(f"{n} samples")
+    print(f"{len(train_idx)} samples used as train set")
+    print(f"{len(val_idx)} samples used as validation set")
+    print(f"{len(test_idx)} samples used as test set")
     
     train_set = Subset(data, train_idx)
     val_set = Subset(data, val_idx)
@@ -193,13 +193,14 @@ if __name__=='__main__':
                "test": test_loader}
     
     net = MyCNN()
-    
+
     x = torch.rand(8, 3, 256, 256)
     out = net(x)
     print(f'output shape: {out.shape}')
             
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-    torch.cuda.empty_cache()
+    
+    if torch.cuda.is_available(): torch.cuda.empty_cache() 
     
     optimizer = optim.SGD(net.parameters(), lr = 0.01)
     criterion = nn.CrossEntropyLoss()
