@@ -53,13 +53,33 @@ class MyCNN(nn.Module):
       # 2
       nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=1, stride=1),
       nn.ReLU(),
-      nn.AdaptiveMaxPool2d(output_size=2)
+      nn.MaxPool2d(kernel_size=2, stride=2),
+      # 3
+      nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, padding=1, stride=2),
+      nn.ReLU(),
+      nn.MaxPool2d(kernel_size=2, stride=2),
+      # 4
+      nn.Conv2d(in_channels=256, out_channels=512, kernel_size=3, padding=1, stride=2),
+      nn.ReLU(),
+      nn.MaxPool2d(kernel_size=2, stride=2),
+      # 5
+      nn.Conv2d(in_channels=512, out_channels=1024, kernel_size=3, padding=1, stride=2),
+      nn.ReLU(),
+      nn.MaxPool2d(kernel_size=2, stride=2),
+      # 6
+      nn.Conv2d(in_channels=1024, out_channels=2048, kernel_size=3, padding=1, stride=2),
+      nn.ReLU(),
+      nn.AdaptiveMaxPool2d(output_size=2),
     )
-    self.classifier = nn.Linear(512,8)
+    self.classifier = nn.Sequential(
+        nn.Linear(8192, 8192),
+        nn.ReLU(),
+        nn.Linear(8192,8)
+    )
 
   def forward(self, x):
     b, _, _, _ = x.shape
-    feature_extracted = self.convolution(x)
+    feature_extracted = self.convolution(x) 
     #return feature_extracted
     #return feature_extracted.view(b, -1)
     return self.classifier(feature_extracted.view(b, -1))
